@@ -1,0 +1,34 @@
+
+crear las tablas
+
+
+CREATE TABLE Clientes (
+    ID SERIAL PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Apellidos VARCHAR(100),
+    Email VARCHAR(100),
+    Telefono VARCHAR(20),
+    Direccion VARCHAR(200),
+    Codigo_Postal VARCHAR(10),
+    Barrio_Colonia VARCHAR(100)
+);
+
+CREATE TABLE Productos (
+    ID SERIAL PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Descripcion TEXT,
+    Precio DECIMAL(10, 2),
+    SKU VARCHAR(50)
+);
+
+CREATE TABLE Ventas (
+    ID SERIAL PRIMARY KEY,
+    Cliente_ID INT REFERENCES Clientes(ID),
+    Fecha DATE
+);
+
+CREATE TABLE Detalles_Ventas (
+    Venta_ID INT REFERENCES Ventas(ID),
+    Producto_ID INT REFERENCES Productos(ID),
+    Cantidad INT
+);
