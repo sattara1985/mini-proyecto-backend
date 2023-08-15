@@ -1,0 +1,109 @@
+select * from clientes
+
+INSERT INTO clientes (Nombre, Apellidos, Email, Telefono, Direccion, Codigo_Postal, Barrio_Colonia)
+VALUES ('alexandra', 'rodriguez', 'rodrirodri@eyah.com', '636262', 'Calle sur', '12121', 'sur');
+
+
+select * from detalles_ventas
+
+INSERT INTO detalles_ventas (venta_id, producto_ID, cantidad)
+VALUES (6, 7, 1);
+
+1
+2
+3
+4
+5
+6
+7
+
+
+select * from productos
+select * from ventas
+
+commit;
+ALTER TABLE ventas RENAME COLUMN id_ventas TO id
+INSERT INTO ventas (Cliente_ID, Fecha, Total)
+VALUES (1, '2023-08-09', 10.99);
+
+--ID y descripción de los productos que cuesten menos de 15000 pesos:
+SELECT ID, descripcion FROM Productos WHERE Precio < 15000;
+
+--ID y nombre de los clientes, cantidad vendida, y descripción del producto en las ventas en las cuales se vendieron más de 10 unidades:
+SELECT c.ID, c.Nombre, dv.Cantidad, p.Descripcion
+FROM Clientes c
+JOIN Ventas v ON c.ID = v.Cliente_ID
+JOIN detalles_ventas dv ON v.ID = dv.Venta_ID
+JOIN Productos p ON dv.Producto_ID = p.ID
+WHERE dv.Cantidad > 10;
+
+--ID y nombre de los clientes que no aparecen en la tabla de ventas (Clientes que no han comprado productos):
+--ok
+SELECT c.ID, c.Nombre
+FROM Clientes c
+LEFT JOIN Ventas v ON c.ID = v.Cliente_ID
+WHERE v.ID IS NULL;
+
+
+--ID y nombre de los clientes que han comprado todos los productos de la empresa:
+
+
+SELECT c.ID, c.Nombre
+FROM clientes c
+WHERE NOT EXISTS (
+    SELECT ID FROM Productos
+    WHERE ID NOT IN (
+        SELECT Producto_ID FROM detalles_ventas WHERE Venta_ID IN (
+            SELECT ID FROM Ventas WHERE Cliente_ID = c.ID
+        )
+    )
+);
+
+
+--ID y nombre de cada cliente y la suma total (suma de cantidad) de los productos que ha comprado:
+
+SELECT c.ID, c.Nombre, SUM(dv.Cantidad) AS Suma_Total
+FROM clientes c
+JOIN ventas v ON c.ID = v.cliente_ID
+JOIN detalles_Ventas dv ON v.ID = dv.Venta_ID
+GROUP BY c.ID, c.Nombre;
+
+
+--ID de los productos que no han sido comprados por clientes de Usme:
+--ok
+SELECT p.ID
+FROM Productos p
+LEFT JOIN detalles_ventas dv ON p.ID = dv.Producto_ID
+LEFT JOIN Ventas v ON dv.Venta_ID = v.ID
+LEFT JOIN Clientes c ON v.Cliente_ID = c.ID
+WHERE c.Barrio_Colonia <> 'Usme' OR c.Barrio_Colonia IS NULL;
+
+--ID de los productos que se han vendido a clientes de Usme y que también se han vendido a clientes de boyaca:
+
+SELECT dv.Producto_ID
+FROM detalles_ventas dv
+JOIN Ventas v ON dv.Venta_ID = v.ID
+JOIN Clientes c ON v.Cliente_ID = c.ID
+WHERE c.Barrio_Colonia = 'Usme' AND dv.Producto_ID IN (
+    SELECT dv2.Producto_ID
+    FROM detalles_ventas dv2
+    JOIN Ventas v2 ON dv2.Venta_ID = v2.ID
+    JOIN Clientes c2 ON v2.Cliente_ID = c2.ID
+    WHERE c2.Barrio_Colonia = 'Usme'
+);
+
+--Nombre de las ciudades en las que se han vendido todos los productos:
+--ok boyaca
+
+SELECT c.Barrio_Colonia
+FROM Clientes c
+WHERE NOT EXISTS (
+    SELECT ID FROM Productos
+    WHERE ID NOT IN (
+        SELECT Producto_ID FROM detalles_ventas WHERE Venta_ID IN (
+            SELECT ID FROM Ventas WHERE Cliente_ID = c.ID
+        )
+    )
+);
+
+
